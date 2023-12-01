@@ -34,21 +34,26 @@ class DataStore:
         self.lastrow = {}
         self.data = pd.DataFrame()
 
+    # Füge prefix und test_number hinzu
     def append(self, row):
         print(row)
         self.lastrow = row
         # Hinzufügen der Testnummer (hier als Beispiel die aktuelle Zeit in Sekunden)
         row['test_number'] = int(datetime.timestamp(datetime.now()))
-        # Hinzufügen des Labels zu den Daten
-        row['label'] = row.get('label', '')
+
+        # Setze den Prefix für den aktuellen Datensatz
+        row['prefix'] = self.get_write_prefix()
+
+        # Hinzufügen des Labels anhand der variable "prefix" zu den Daten
         # Verwende concat anstelle von append
         self.data = pd.concat([self.data, pd.DataFrame([row])], ignore_index=True)
 
         # Schreibe Daten in Echtzeit nach MariaDB
         self.data.drop_duplicates().to_sql('E-Last_Messdaten', con=self.engine, if_exists='append', index=False)
 
-    def write(self, basedir, prefix):
-        filename = "{}_raw_{}.csv".format(prefix, datetime.now().strftime("%Y%m%d_%H%M%S"))
+    def write(self, basedir, user_input_prefix):
+        self.prefix = user_input_prefix
+        filename = "{}_raw_{}.csv".format(self.prefix, datetime.now().strftime("%Y%m%d_%H%M%S"))
         full_path = path.join(basedir, filename)
         export_rows = self.data.drop_duplicates()
         if export_rows.shape[0]:
@@ -56,6 +61,9 @@ class DataStore:
             export_rows.to_csv(full_path, index=False)
         else:
             print("no data")
+
+    def get_write_prefix(self):
+        return self.prefix if hasattr(self, 'prefix') and self.prefix else "default_prefix"
 
     def plot(self, **args):
         return self.data.plot(**args)
@@ -65,6 +73,3 @@ class DataStore:
 
     def setlastval(self, key, val):
         self.lastrow[key] = val
-
-# Beispielaufruf
-datastore = DataStore('config.ini')
