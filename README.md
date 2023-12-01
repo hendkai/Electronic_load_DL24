@@ -26,6 +26,11 @@ See the [v2.70 binary Protocol description](protocol_PX-100_2_70.md)
 - force "tight layout" for the graph
 - combined all graph legends into a single legend
 
+### Changes from hendkai:
+- added streaming to mariadb
+  Be aware that prefix column is set by Labe in the GUI if you press
+  the "reset" button. 
+
 # DISCLAIMER
 
 For now, this is my personal fork.
