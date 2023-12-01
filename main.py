@@ -14,7 +14,8 @@ class Main:
         QCoreApplication.setApplicationName('Battery tester')
         self.threadpool = QThreadPool()
         self.instr_thread()
-        self.datastore = DataStore()
+        # Änderung hier: Übergeben Sie den Pfad zur Konfigurationsdatei
+        self.datastore = DataStore(config_file='config.ini')
         signal(SIGTERM, self.terminate_process)
         signal(SIGINT, self.terminate_process)
         self.data_receivers = set()
